@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Vestalia - Costeo de Recetas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <header class="app-header">
+    <nav class="header-nav">
+      <h1 class="header-title">Vestalia</h1>
+      <div class="header-buttons">
+        <button id="nav-calculator" class="nav-button active">Calculadora</button>
+        <button id="nav-admin" class="nav-button">Administración</button>
+      </div>
+    </nav>
+  </header>
+
+  <main class="app-main">
+    <!-- Vista Calculadora -->
+    <div id="view-calculator" class="view active">
+      <div class="calculator-container">
+        <div class="calculator-grid">
+          <!-- Columna izquierda: Selección de recetas -->
+          <div class="calculator-left">
+            <h2 class="section-title">1. Elige una Receta</h2>
+            <input type="text" id="search-recipes" placeholder="Buscar receta..." class="search-input" />
+            <div id="recipes-list" class="recipes-list">
+              <!-- Lista de recetas generada por JS -->
+            </div>
+          </div>
+
+          <!-- Columna derecha: Cálculo -->
+          <div class="calculator-right">
+            <h2 class="section-title">2. Lista de Recetas</h2>
+            <div id="selected-recipes-list" class="selected-recipes-list">
+              <div id="no-recipes-selected" class="empty-state-small">
+                <p>Agrega recetas desde la lista de la izquierda</p>
+              </div>
+            </div>
+            <div class="calculation-actions">
+              <button id="btn-calcular" class="btn-calculate">
+                <svg class="icon-calculator" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+                Calcular Lista de Compras
+              </button>
+            </div>
+
+            <div id="calculation-results" class="calculation-results" style="display: none;">
+              <div class="results-header">
+                <h3 class="results-title">Lista de Compras Consolidada</h3>
+                <div class="export-buttons">
+                  <button id="btn-export-csv-shopping" class="btn-secondary-small" title="Exportar a CSV">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                      style="width: 1rem; height: 1rem; margin-right: 0.25rem;">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    CSV
+                  </button>
+                  <button id="btn-export-html-shopping" class="btn-secondary-small" title="Exportar a HTML">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                      style="width: 1rem; height: 1rem; margin-right: 0.25rem;">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    HTML
+                  </button>
+                </div>
+              </div>
+              <!-- Tabs para diferentes vistas -->
+              <div class="results-tabs">
+                <button class="results-tab-btn active" data-tab="consolidated">Lista Consolidada</button>
+                <button class="results-tab-btn" data-tab="by-recipe">Por Receta</button>
+                <button class="results-tab-btn" data-tab="chart">Análisis de Costos</button>
+              </div>
+
+              <!-- Tab: Lista Consolidada -->
+              <div class="results-tab-content active" id="tab-consolidated">
+                <div class="table-wrapper">
+                  <table class="results-table" id="shopping-list-table">
+                    <thead>
+                      <tr>
+                        <th>Ítem</th>
+                        <th class="text-right">Cantidad Necesaria</th>
+                        <th class="text-right">Unidad</th>
+                        <th class="text-right">Costo Estimado</th>
+                      </tr>
+                    </thead>
+                    <tbody id="tabla-resultados-body">
+                      <!-- Filas generadas por JS -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Tab: Por Receta -->
+              <div class="results-tab-content" id="tab-by-recipe">
+                <div id="recipes-breakdown" class="recipes-breakdown">
+                  <!-- Desglose por receta generado por JS -->
+                </div>
+              </div>
+
+              <!-- Tab: Análisis de Costos -->
+              <div class="results-tab-content" id="tab-chart">
+                <div id="ingredients-chart-container" class="chart-container" style="display: block;">
+                  <h4 class="chart-title">Análisis de Costos - Incidencia por Item</h4>
+                  <div id="ingredients-chart" class="chart-content">
+                    <!-- Gráfico generado por JS -->
+                  </div>
+                </div>
+              </div>
+
+              <div class="summary-box">
+                <div class="summary-item">
+                  <p class="summary-label">Costo Total</p>
+                  <p id="resumen-costo-total" class="summary-value">–</p>
+                </div>
+                <div class="summary-item">
+                  <p class="summary-label">Total de Unidades</p>
+                  <p id="resumen-unidades" class="summary-value">–</p>
+                </div>
+                <div class="summary-item">
+                  <p class="summary-label">Recetas Incluidas</p>
+                  <p id="resumen-recetas-count" class="summary-value">–</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vista Administración -->
+    <div id="view-admin" class="view">
+      <div class="admin-container">
+        <div class="admin-header">
+          <h1 class="admin-title">Administración</h1>
+          <div class="admin-header-actions">
+            <button id="btn-export-csv" class="btn-secondary" title="Exportar datos a CSV">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                style="width: 1rem; height: 1rem; margin-right: 0.5rem;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Exportar CSV
+            </button>
+            <button id="btn-import-csv" class="btn-secondary" title="Importar datos desde CSV">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                style="width: 1rem; height: 1rem; margin-right: 0.5rem;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
+              Importar CSV
+            </button>
+            <button id="btn-restore-legacy" class="btn-secondary" title="Restaurar datos de fábrica" style="background-color: #f0f0f0; color: #666; border: 1px dashed #ccc;">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 1rem; height: 1rem; margin-right: 0.5rem;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Restaurar Datos Fábrica
+            </button>
+            <input type="file" id="csv-file-input" accept=".csv" style="display: none;" />
+            <button id="btn-add-item" class="btn-add">
+              <svg class="icon-plus" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              Agregar <span id="add-item-label">Recetas</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="admin-tabs">
+          <button class="admin-tab-btn active" data-tab="recipes">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+              class="tab-icon">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Recetas
+            <span class="tab-badge" id="badge-recipes">0</span>
+          </button>
+          <button class="admin-tab-btn" data-tab="ingredients">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+              class="tab-icon">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+            Ingredientes
+            <span class="tab-badge" id="badge-ingredients">0</span>
+          </button>
+          <button class="admin-tab-btn" data-tab="supplies">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+              class="tab-icon">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+            </svg>
+            Insumos
+            <span class="tab-badge" id="badge-supplies">0</span>
+          </button>
+          <button class="admin-tab-btn" data-tab="equipments">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+              class="tab-icon">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+            </svg>
+            Electrodomésticos
+            <span class="tab-badge" id="badge-equipments">0</span>
+          </button>
+          <button class="admin-tab-btn" data-tab="settings">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+              class="tab-icon">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            Configuración
+          </button>
+        </div>
+
+        <!-- Tab Recetas -->
+        <div class="admin-tab-content active" id="tab-recipes">
+          <div class="admin-search-container">
+            <div class="search-input-wrapper">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                class="search-icon">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input type="text" id="search-recipes" class="admin-search-input"
+                placeholder="Buscar recetas por nombre, descripción..." />
+            </div>
+          </div>
+          <div id="recipes-admin-list" class="admin-list">
+            <!-- Lista generada por JS -->
+          </div>
+        </div>
+
+        <!-- Tab Ingredientes -->
+        <div class="admin-tab-content" id="tab-ingredients">
+          <div class="admin-search-container">
+            <div class="search-input-wrapper">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                class="search-icon">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input type="text" id="search-ingredients" class="admin-search-input"
+                placeholder="Buscar ingredientes por nombre, proveedor..." />
+            </div>
+            <div class="admin-filter-group">
+              <label class="filter-label">
+                <input type="checkbox" id="group-by-provider" class="filter-checkbox" />
+                <span>Agrupar por proveedor</span>
+              </label>
+            </div>
+          </div>
+          <div id="ingredients-admin-list" class="admin-list">
+            <!-- Lista generada por JS -->
+          </div>
+        </div>
+
+        <!-- Tab Insumos -->
+        <div class="admin-tab-content" id="tab-supplies">
+          <div class="admin-search-container">
+            <div class="search-input-wrapper">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                class="search-icon">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input type="text" id="search-supplies" class="admin-search-input"
+                placeholder="Buscar insumos por nombre..." />
+            </div>
+          </div>
+          <div id="supplies-admin-list" class="admin-list">
+            <!-- Lista generada por JS -->
+          </div>
+        </div>
+
+        <!-- Tab Electrodomésticos -->
+        <div class="admin-tab-content" id="tab-equipments">
+          <div class="admin-search-container">
+            <div class="search-input-wrapper">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                class="search-icon">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input type="text" id="search-equipments" class="admin-search-input"
+                placeholder="Buscar electrodomésticos por nombre..." />
+            </div>
+          </div>
+          <div id="equipments-admin-list" class="admin-list">
+            <!-- Lista generada por JS -->
+          </div>
+        </div>
+
+        <!-- Tab Configuración -->
+        <div class="admin-tab-content" id="tab-settings">
+          <div class="settings-container">
+            <div class="settings-section">
+              <h2 class="settings-title">Configuración Global</h2>
+              <div class="settings-form">
+                <div class="form-group">
+                  <label class="form-label" for="global-kwh-cost">
+                    Costo Global de KWh (CLP)
+                  </label>
+                  <input type="number" id="global-kwh-cost" class="form-input" min="0" step="1" placeholder="Ej: 230" />
+                  <small class="form-help-text">
+                    Este valor se aplicará a todos los electrodomésticos que no tengan un costo específico configurado.
+                  </small>
+                  <button id="btn-save-global-kwh" class="btn-save settings-save-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                      style="width: 1rem; height: 1rem; margin-right: 0.5rem;">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Guardar Configuración
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal para editar/crear -->
+  <div id="modal-overlay" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modal-title" class="modal-title"></h2>
+        <button id="modal-close" class="modal-close">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body" id="modal-body">
+        <!-- Contenido del formulario generado por JS -->
+      </div>
+    </div>
+  </div>
+
+  <footer class="app-footer">
+    <p>&copy; <span id="current-year"></span> Vestalia Pastelería. Todos los derechos reservados.</p>
+  </footer>
+
+  <!-- Librería XLSX para exportar/importar archivos de Excel -->
+  <script src="js/xlsx.full.min.js"></script>
+  <script type="module" src="js/main.js"></script>
+</body>
+
+</html>
